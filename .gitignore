@@ -1,0 +1,7 @@
+# Private product and design notes: keep local, never push
+PRODUCT.md
+DESIGN.md
+.impeccable/
+
+# OS clutter
+.DS_Store

@@ -2,1167 +2,245 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParsaBiotech | Grand SLAM — Slit Lamp Angular Measurement</title>
-<meta name="description" content="Grand SLAM by ParsaBiotech. Surgical-grade toric IOL axis alignment on the slit lamp you already own.">
-
-<!-- ============================================================
-     FONTS — Space Grotesk (display) + Manrope (body)
-     ============================================================ -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-/* ============================================================
-   1. DESIGN TOKENS
-   Edit colors, glows and spacing here. Everything derives
-   from these variables.
-   ============================================================ */
-:root{
-  /* Base surfaces — light, airy, clinical */
-  --bg:          #F7F9FC;   /* page background */
-  --bg-soft:     #EFF3F9;   /* alternating section tint */
-  --surface:     #FFFFFF;   /* cards */
-  --ink:         #0B1424;   /* primary text, near-black blue */
-  --ink-soft:    #4B586E;   /* secondary text */
-  --ink-faint:   #8A96AB;   /* captions, labels */
-  --line:        #E3E9F2;   /* hairline borders */
-
-  /* The slit-lamp beam — cyan → electric blue → violet */
-  --beam-1: #22D3EE;
-  --beam-2: #3B82F6;
-  --beam-3: #7C6BF6;
-  --beam-grad: linear-gradient(100deg, var(--beam-1), var(--beam-2) 55%, var(--beam-3));
-
-  /* Soft light-emission shadows */
-  --glow-sm: 0 0 18px rgba(59,130,246,.22);
-  --glow-md: 0 6px 32px rgba(56,152,236,.28), 0 0 60px rgba(124,107,246,.14);
-  --card-shadow: 0 1px 2px rgba(11,20,36,.04), 0 12px 40px rgba(30,64,120,.07);
-
-  --font-display: "Space Grotesk", sans-serif;
-  --font-body: "Manrope", sans-serif;
-
-  --radius: 20px;
-  --radius-lg: 28px;
-  --wrap: 1140px;
-}
-
-/* ============================================================
-   2. RESET & BASE
-   ============================================================ */
-*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
-html{ scroll-behavior:smooth; }
-body{
-  font-family:var(--font-body);
-  background:var(--bg);
-  color:var(--ink);
-  line-height:1.6;
-  font-size:16px;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
-img{ max-width:100%; display:block; }
-a{ color:inherit; text-decoration:none; }
-button{ font:inherit; cursor:pointer; }
-::selection{ background:rgba(59,130,246,.18); }
-
-h1,h2,h3{ font-family:var(--font-display); line-height:1.08; letter-spacing:-0.02em; font-weight:600; }
-
-.wrap{ max-width:var(--wrap); margin:0 auto; padding:0 24px; }
-
-/* Section rhythm */
-section{ position:relative; padding:110px 0; }
-.eyebrow{
-  display:inline-flex; align-items:center; gap:8px;
-  font-family:var(--font-display);
-  font-size:12px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
-  color:var(--ink-faint); margin-bottom:18px;
-}
-.eyebrow::before{
-  content:""; width:26px; height:2px; border-radius:2px;
-  background:var(--beam-grad);
-  box-shadow:0 0 10px rgba(59,130,246,.5);
-}
-.section-title{ font-size:clamp(30px,4.4vw,48px); margin-bottom:16px; }
-.section-lede{ color:var(--ink-soft); max-width:560px; font-size:17px; }
-
-/* ============================================================
-   3. AMBIENT LIGHT — drifting glows behind the whole page
-   ============================================================ */
-.ambient{
-  position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden;
-}
-.ambient span{
-  position:absolute; border-radius:50%; filter:blur(90px); opacity:.5;
-}
-.ambient .a1{
-  width:56vw; height:56vw; top:-22vw; right:-14vw;
-  background:radial-gradient(circle, rgba(34,211,238,.30), transparent 65%);
-  animation:driftA 26s ease-in-out infinite alternate;
-}
-.ambient .a2{
-  width:48vw; height:48vw; bottom:-20vw; left:-16vw;
-  background:radial-gradient(circle, rgba(124,107,246,.24), transparent 65%);
-  animation:driftB 32s ease-in-out infinite alternate;
-}
-.ambient .a3{
-  width:34vw; height:34vw; top:38%; left:52%;
-  background:radial-gradient(circle, rgba(59,130,246,.16), transparent 65%);
-  animation:driftC 40s ease-in-out infinite alternate;
-}
-@keyframes driftA{ to{ transform:translate(-9vw, 11vw) scale(1.12); } }
-@keyframes driftB{ to{ transform:translate(10vw, -9vw) scale(1.08); } }
-@keyframes driftC{ to{ transform:translate(-12vw, -7vw); } }
-
-/* ============================================================
-   4. NAV
-   ============================================================ */
-.nav{
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  background:rgba(250,252,255,.72);
-  border-bottom:1px solid rgba(227,233,242,.9);
-}
-.nav-inner{
-  max-width:var(--wrap); margin:0 auto; padding:0 24px;
-  height:66px; display:flex; align-items:center; justify-content:space-between; gap:20px;
-}
-/* -------- PLACEHOLDER: LOGO --------
-   Swap the text wordmark below for <img src="logo.svg" alt="ParsaBiotech" style="height:26px">
-------------------------------------- */
-.wordmark{
-  font-family:var(--font-display); font-weight:700; font-size:18px; letter-spacing:-.01em;
-  display:flex; align-items:center; gap:9px;
-}
-.wordmark .dot{
-  width:10px; height:10px; border-radius:50%;
-  background:var(--beam-grad);
-  box-shadow:0 0 12px rgba(59,130,246,.7);
-}
-.nav-links{ display:flex; align-items:center; gap:30px; }
-.nav-links a{
-  font-size:14px; font-weight:600; color:var(--ink-soft);
-  transition:color .2s;
-}
-.nav-links a:hover{ color:var(--ink); }
-
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  font-family:var(--font-display); font-weight:600; font-size:15px;
-  padding:13px 26px; border-radius:100px; border:none;
-  transition:transform .25s ease, box-shadow .25s ease, background .25s;
-}
-.btn-primary{
-  color:#fff;
-  background:linear-gradient(100deg, #19B9E8, #2F6FF0 55%, #6E5CF0);
-  box-shadow:var(--glow-sm);
-}
-.btn-primary:hover{ transform:translateY(-2px); box-shadow:var(--glow-md); }
-.btn-ghost{
-  background:var(--surface); color:var(--ink);
-  border:1px solid var(--line);
-  box-shadow:0 1px 2px rgba(11,20,36,.05);
-}
-.btn-ghost:hover{ transform:translateY(-2px); box-shadow:var(--glow-sm); border-color:#CBD9EE; }
-.nav .btn{ padding:10px 20px; font-size:14px; }
-
-/* Mobile nav */
-.nav-toggle{ display:none; background:none; border:none; width:38px; height:38px; position:relative; }
-.nav-toggle span{
-  position:absolute; left:8px; right:8px; height:2px; border-radius:2px; background:var(--ink);
-  transition:.25s;
-}
-.nav-toggle span:nth-child(1){ top:13px; } .nav-toggle span:nth-child(2){ top:23px; }
-.nav.open .nav-toggle span:nth-child(1){ top:18px; transform:rotate(45deg); }
-.nav.open .nav-toggle span:nth-child(2){ top:18px; transform:rotate(-45deg); }
-
-@media (max-width:820px){
-  .nav-toggle{ display:block; }
-  .nav-links{
-    position:absolute; top:66px; left:0; right:0;
-    flex-direction:column; align-items:flex-start; gap:0;
-    background:rgba(250,252,255,.97); backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);
-    max-height:0; overflow:hidden; transition:max-height .35s ease;
-  }
-  .nav.open .nav-links{ max-height:360px; }
-  .nav-links a{ padding:15px 24px; width:100%; border-top:1px solid var(--line); }
-  .nav-links .btn{ margin:14px 24px 18px; width:auto; }
-}
-
-/* ============================================================
-   5. HERO — the sweeping beam instrument
-   ============================================================ */
-.hero{
-  padding:170px 0 90px; text-align:center; overflow:hidden;
-}
-/* slow rotating conic light behind the hero */
-.hero::before{
-  content:""; position:absolute; z-index:-1;
-  width:150vmax; height:150vmax; left:50%; top:32%;
-  transform:translate(-50%,-50%);
-  background:conic-gradient(from 0deg,
-    transparent 0deg, rgba(34,211,238,.06) 40deg, transparent 90deg,
-    rgba(124,107,246,.05) 170deg, transparent 230deg,
-    rgba(59,130,246,.06) 300deg, transparent 360deg);
-  animation:heroSweep 60s linear infinite;
-}
-@keyframes heroSweep{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
-
-.hero-eyebrow{
-  display:inline-block; font-family:var(--font-display); font-size:12px; font-weight:600;
-  letter-spacing:.24em; text-transform:uppercase; color:var(--ink-faint);
-  padding:8px 18px; border:1px solid var(--line); border-radius:100px;
-  background:rgba(255,255,255,.7); margin-bottom:28px;
-}
-.hero h1{
-  font-size:clamp(52px,9vw,104px); font-weight:700; letter-spacing:-0.035em;
-}
-.hero h1 .lit{
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-  filter:drop-shadow(0 0 26px rgba(59,130,246,.35));
-}
-.hero-value{
-  font-family:var(--font-display); font-size:clamp(19px,2.6vw,26px); font-weight:500;
-  margin:22px auto 10px; max-width:640px; letter-spacing:-.01em;
-}
-.hero-sub{ color:var(--ink-soft); font-size:16px; max-width:520px; margin:0 auto; }
-.hero-cta{ display:flex; gap:14px; justify-content:center; margin-top:34px; flex-wrap:wrap; }
-
-/* --- The instrument: protractor + live beam --- */
-.instrument{
-  position:relative; max-width:820px; margin:64px auto 0;
-}
-.instrument svg{ width:100%; height:auto; display:block; }
-.readout{
-  position:absolute; top:8%; right:4%;
-  text-align:right; pointer-events:none;
-}
-.readout .value{
-  font-family:var(--font-display); font-weight:700;
-  font-size:clamp(40px,6vw,64px); letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums;
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-  filter:drop-shadow(0 0 18px rgba(59,130,246,.35));
-  line-height:1;
-}
-.readout .label{
-  font-family:var(--font-display); font-size:11px; font-weight:600;
-  letter-spacing:.24em; text-transform:uppercase; color:var(--ink-faint);
-  margin-top:8px; display:flex; align-items:center; justify-content:flex-end; gap:7px;
-}
-.readout .label::before{
-  content:""; width:7px; height:7px; border-radius:50%;
-  background:#2FD3A8; box-shadow:0 0 8px rgba(47,211,168,.8);
-  animation:pulse 1.6s ease-in-out infinite;
-}
-@keyframes pulse{ 50%{ opacity:.35; } }
-
-/* ============================================================
-   6. THE PROBLEM
-   ============================================================ */
-.problem{ background:linear-gradient(180deg, transparent, rgba(239,243,249,.8) 18%, rgba(239,243,249,.8) 82%, transparent); }
-.problem-grid{
-  display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; margin-top:14px;
-}
-.problem-copy p{ color:var(--ink-soft); margin-top:16px; max-width:460px; }
-.problem-copy strong{ color:var(--ink); font-weight:700; }
-
-.stat-cards{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-.stat-card{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  padding:28px 26px; box-shadow:var(--card-shadow);
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-.stat-card:hover{ transform:translateY(-4px); box-shadow:var(--glow-md); }
-.stat-card .num{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(34px,3.6vw,44px);
-  letter-spacing:-.02em; font-variant-numeric:tabular-nums;
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.stat-card .desc{ font-size:14px; color:var(--ink-soft); margin-top:8px; line-height:1.5; }
-
-/* Degradation bar: correction lost as misalignment grows */
-.decay{
-  margin-top:34px; background:var(--surface); border:1px solid var(--line);
-  border-radius:var(--radius); padding:24px 26px; box-shadow:var(--card-shadow);
-}
-.decay .decay-title{
-  font-family:var(--font-display); font-size:12px; font-weight:600;
-  letter-spacing:.18em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:16px;
-}
-.decay-track{
-  height:12px; border-radius:100px; background:var(--bg-soft); overflow:hidden; position:relative;
-}
-.decay-fill{
-  height:100%; width:0%;
-  background:linear-gradient(90deg, var(--beam-1), var(--beam-2) 60%, #F0637E);
-  border-radius:100px;
-  transition:width 2.4s cubic-bezier(.22,1,.3,1);
-}
-.decay-scale{
-  display:flex; justify-content:space-between; margin-top:10px;
-  font-size:12px; color:var(--ink-faint); font-variant-numeric:tabular-nums;
-}
-.decay-note{ font-size:13px; color:var(--ink-soft); margin-top:12px; }
-.decay-note b{ color:#D6455F; }
-
-/* ============================================================
-   7. HOW IT WORKS
-   ============================================================ */
-.steps{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:56px;
-}
-.step{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  padding:30px 26px; box-shadow:var(--card-shadow); position:relative; overflow:hidden;
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-.step:hover{ transform:translateY(-4px); box-shadow:var(--glow-md); }
-.step .icon{
-  width:52px; height:52px; border-radius:14px; margin-bottom:20px;
-  display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(135deg, rgba(34,211,238,.12), rgba(124,107,246,.12));
-  border:1px solid rgba(59,130,246,.18);
-}
-.step .icon svg{ width:26px; height:26px; }
-.step h3{ font-size:19px; margin-bottom:8px; }
-.step p{ font-size:14px; color:var(--ink-soft); }
-.step .k{
-  position:absolute; top:22px; right:24px;
-  font-family:var(--font-display); font-size:12px; font-weight:600;
-  letter-spacing:.18em; color:var(--ink-faint);
-}
-
-/* ============================================================
-   8. WHY IT'S DIFFERENT — animated comparison
-   ============================================================ */
-.compare{ background:linear-gradient(180deg, transparent, rgba(239,243,249,.8) 18%, rgba(239,243,249,.8) 82%, transparent); }
-.compare-grid{
-  display:grid; grid-template-columns:1fr 1.15fr 1fr; gap:18px; margin-top:56px; align-items:stretch;
-}
-.compare-card{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
-  padding:34px 30px; box-shadow:var(--card-shadow); position:relative;
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-.compare-card:hover{ transform:translateY(-4px); }
-.compare-card.hero-card{
-  border:1px solid transparent;
-  background:
-    linear-gradient(var(--surface),var(--surface)) padding-box,
-    linear-gradient(120deg, var(--beam-1), var(--beam-2), var(--beam-3)) border-box;
-  box-shadow:var(--glow-md);
-}
-.compare-card.hero-card:hover{ box-shadow:0 10px 48px rgba(56,152,236,.4), 0 0 90px rgba(124,107,246,.2); }
-.compare-tag{
-  font-family:var(--font-display); font-size:11px; font-weight:600;
-  letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;
-}
-.hero-card .compare-tag{
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.compare-card h3{ font-size:22px; margin-bottom:24px; }
-
-.metric{ margin-bottom:22px; }
-.metric .m-label{
-  display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px;
-}
-.metric .m-label span:first-child{ color:var(--ink-faint); }
-.metric .m-label span:last-child{ font-weight:700; font-variant-numeric:tabular-nums; }
-.m-track{ height:8px; border-radius:100px; background:var(--bg-soft); overflow:hidden; }
-.m-fill{
-  height:100%; width:0%; border-radius:100px;
-  transition:width 1.8s cubic-bezier(.22,1,.3,1);
-}
-.m-fill.good{ background:var(--beam-grad); box-shadow:0 0 10px rgba(59,130,246,.5); }
-.m-fill.bad{ background:linear-gradient(90deg,#F3A0B0,#E86A85); }
-.m-fill.mid{ background:linear-gradient(90deg,#B9C6DB,#93A5C2); }
-
-.compare-foot{
-  font-size:13.5px; color:var(--ink-soft); border-top:1px solid var(--line);
-  padding-top:18px; margin-top:6px;
-}
-.hero-card .compare-foot{ color:var(--ink); font-weight:600; }
-.compare-land{
-  text-align:center; margin-top:48px;
-  font-family:var(--font-display); font-size:clamp(20px,2.8vw,28px); font-weight:600;
-  letter-spacing:-.01em;
-}
-.compare-land .lit{
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-
-/* ============================================================
-   9. TECHNOLOGY — 3D device + prototype photo
-   ============================================================ */
-.tech-grid{
-  display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center; margin-top:20px;
-}
-.tech-copy p{ color:var(--ink-soft); margin-top:16px; max-width:440px; }
-.tech-list{ margin-top:28px; display:grid; gap:14px; }
-.tech-list li{
-  list-style:none; display:flex; gap:14px; align-items:flex-start;
-  font-size:15px; color:var(--ink-soft);
-}
-.tech-list li b{ color:var(--ink); }
-.tech-list .tick{
-  flex:none; width:22px; height:22px; margin-top:2px; border-radius:50%;
-  background:linear-gradient(135deg, rgba(34,211,238,.15), rgba(124,107,246,.15));
-  border:1px solid rgba(59,130,246,.3);
-  display:flex; align-items:center; justify-content:center;
-}
-.tick svg{ width:11px; height:11px; }
-
-/* --- CSS 3D rotating device --- */
-.device-stage{
-  height:420px; display:flex; align-items:center; justify-content:center;
-  perspective:1300px; position:relative;
-}
-.device-stage::after{ /* soft floor glow */
-  content:""; position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
-  width:250px; height:44px; border-radius:50%;
-  background:radial-gradient(ellipse, rgba(59,130,246,.28), transparent 70%);
-  filter:blur(10px);
-}
-.device-tilt{ transform:rotateX(-10deg); transform-style:preserve-3d; }
-.device{
-  --w:172px; --h:250px; --d:46px;
-  width:var(--w); height:var(--h); position:relative;
-  transform-style:preserve-3d;
-  animation:deviceSpin 16s linear infinite;
-}
-@keyframes deviceSpin{ from{ transform:rotateY(0); } to{ transform:rotateY(360deg); } }
-.face{ position:absolute; }
-.face.front,.face.back{
-  width:var(--w); height:var(--h); border-radius:26px;
-  background:linear-gradient(160deg,#FFFFFF 0%, #EDF2F9 55%, #DDE6F2 100%);
-  border:1px solid #D5DfEC;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
-}
-.face.front{ transform:translateZ(calc(var(--d)/2)); }
-.face.back{ transform:rotateY(180deg) translateZ(calc(var(--d)/2)); }
-.face.left,.face.right{
-  width:var(--d); height:calc(var(--h) - 40px); top:20px; left:calc(50% - var(--d)/2);
-  background:linear-gradient(#E4EAF4,#CBD6E6);
-}
-.face.left{ transform:rotateY(-90deg) translateZ(calc(var(--w)/2 - 4px)); }
-.face.right{ transform:rotateY(90deg) translateZ(calc(var(--w)/2 - 4px)); }
-.face.top,.face.bottom{
-  width:calc(var(--w) - 40px); height:var(--d); left:20px;
-  background:linear-gradient(#F2F6FB,#D8E1EE);
-}
-.face.top{ transform:rotateX(90deg) translateZ(calc(var(--h)/2 - 4px)); top:calc(50% - var(--d)/2); }
-.face.bottom{ transform:rotateX(-90deg) translateZ(calc(var(--h)/2 - 4px)); top:calc(50% - var(--d)/2); }
-
-/* the device's little glowing screen with a live slit line */
-.device-screen{
-  position:absolute; top:26px; left:22px; right:22px; height:118px;
-  border-radius:16px; background:#0B1424; overflow:hidden;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 0 0 26px rgba(59,130,246,.35);
-}
-.device-screen .slit{
-  position:absolute; top:50%; left:50%; width:82px; height:3px; border-radius:3px;
-  background:var(--beam-grad);
-  box-shadow:0 0 12px rgba(59,130,246,.9), 0 0 30px rgba(34,211,238,.6);
-  transform-origin:center;
-  animation:slitSweep 6s ease-in-out infinite alternate;
-}
-@keyframes slitSweep{
-  from{ transform:translate(-50%,-50%) rotate(-72deg); }
-  to{ transform:translate(-50%,-50%) rotate(72deg); }
-}
-.device-screen .deg{
-  position:absolute; bottom:9px; width:100%; text-align:center;
-  font-family:var(--font-display); font-size:11px; font-weight:600; letter-spacing:.16em;
-  color:rgba(180,215,255,.85);
-}
-.device-clip{ /* clip arm hint at the bottom of the front face */
-  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-  width:64px; height:34px; border-radius:10px;
-  background:linear-gradient(#DFE7F2,#C4D1E4); border:1px solid #C6D2E4;
-}
-.device-led{
-  position:absolute; bottom:66px; left:50%; transform:translateX(-50%);
-  width:8px; height:8px; border-radius:50%;
-  background:#2FD3A8; box-shadow:0 0 10px rgba(47,211,168,.9);
-  animation:pulse 2s ease-in-out infinite;
-}
-
-/* --- Prototype photo pedestal --- */
-.proto{
-  margin-top:90px; text-align:center;
-}
-.proto-pedestal{
-  position:relative; max-width:640px; margin:36px auto 0;
-  background:var(--surface); border:1px solid var(--line);
-  border-radius:var(--radius-lg); padding:26px;
-  box-shadow:var(--card-shadow);
-}
-.proto-pedestal::before{
-  content:""; position:absolute; inset:-1px; z-index:-1; border-radius:inherit;
-  background:linear-gradient(120deg, rgba(34,211,238,.5), rgba(59,130,246,.4), rgba(124,107,246,.5));
-  filter:blur(26px); opacity:.35;
-}
-/* ================= PLACEHOLDER: PROTOTYPE PHOTO =================
-   Replace the .proto-slot div below with:
-   <img src="prototype.jpg" alt="Grand SLAM prototype mounted on a slit lamp" style="border-radius:16px">
-   ================================================================ */
-.proto-slot{
-  border:2px dashed #C9D6E8; border-radius:16px; height:340px;
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-  color:var(--ink-faint); font-size:14px; background:var(--bg-soft);
-}
-.proto-slot svg{ width:38px; height:38px; opacity:.6; }
-.proto-caption{
-  margin-top:16px; font-size:13px; color:var(--ink-faint);
-  font-family:var(--font-display); letter-spacing:.14em; text-transform:uppercase;
-}
-
-/* ============================================================
-   10. CREDIBILITY
-   ============================================================ */
-.cred{ background:linear-gradient(180deg, transparent, rgba(239,243,249,.8) 18%, rgba(239,243,249,.8) 82%, transparent); }
-.cred-grid{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:56px;
-}
-.cred-card{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  padding:32px 28px; box-shadow:var(--card-shadow);
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-.cred-card:hover{ transform:translateY(-4px); box-shadow:var(--glow-md); }
-.cred-card .big{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(30px,3.4vw,40px);
-  letter-spacing:-.02em; font-variant-numeric:tabular-nums;
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.cred-card .t{ font-weight:700; font-size:16px; margin-top:6px; }
-.cred-card p{ font-size:14px; color:var(--ink-soft); margin-top:6px; }
-
-/* ============================================================
-   11. CONTACT + FOOTER
-   ============================================================ */
-.contact{ text-align:center; padding-bottom:130px; }
-.contact-card{
-  position:relative; max-width:760px; margin:0 auto; padding:74px 40px;
-  background:var(--surface); border:1px solid var(--line);
-  border-radius:32px; box-shadow:var(--card-shadow); overflow:hidden;
-}
-.contact-card::before{ /* slow light streak across the card */
-  content:""; position:absolute; top:-60%; left:-30%; width:40%; height:220%;
-  background:linear-gradient(100deg, transparent, rgba(59,130,246,.10), rgba(34,211,238,.14), transparent);
-  transform:rotate(18deg);
-  animation:streak 9s ease-in-out infinite;
-}
-@keyframes streak{
-  0%,100%{ left:-45%; } 50%{ left:105%; }
-}
-.contact h2{ font-size:clamp(30px,4.4vw,46px); }
-.contact p{ color:var(--ink-soft); margin:16px auto 30px; max-width:440px; }
-/* -------- PLACEHOLDER: CONTACT EMAIL -------- */
-.contact .email{
-  font-family:var(--font-display); font-weight:600; font-size:17px;
-  background:var(--beam-grad);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.contact .loc{ margin-top:26px; font-size:13px; color:var(--ink-faint); letter-spacing:.16em; text-transform:uppercase; font-family:var(--font-display); }
-
-footer{
-  border-top:1px solid var(--line); padding:30px 0;
-  font-size:13px; color:var(--ink-faint);
-}
-.foot-inner{
-  max-width:var(--wrap); margin:0 auto; padding:0 24px;
-  display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
-}
-
-/* ============================================================
-   12. SCROLL REVEAL
-   ============================================================ */
-.reveal{ opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.3,1); }
-.reveal.in{ opacity:1; transform:none; }
-.reveal.d1{ transition-delay:.1s; } .reveal.d2{ transition-delay:.2s; }
-.reveal.d3{ transition-delay:.3s; } .reveal.d4{ transition-delay:.4s; }
-
-/* ============================================================
-   13. RESPONSIVE
-   ============================================================ */
-@media (max-width:960px){
-  .steps{ grid-template-columns:repeat(2,1fr); }
-  .compare-grid{ grid-template-columns:1fr; max-width:520px; margin-left:auto; margin-right:auto; }
-  .cred-grid{ grid-template-columns:repeat(2,1fr); }
-  .problem-grid,.tech-grid{ grid-template-columns:1fr; gap:48px; }
-  .tech-grid .device-stage{ order:-1; height:360px; }
-}
-@media (max-width:600px){
-  section{ padding:80px 0; }
-  .steps,.cred-grid,.stat-cards{ grid-template-columns:1fr; }
-  .hero{ padding-top:130px; }
-  .readout{ position:static; text-align:center; margin-top:18px; }
-  .readout .label{ justify-content:center; }
-}
-
-/* ============================================================
-   14. REDUCED MOTION
-   ============================================================ */
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{ animation:none !important; transition:none !important; }
-  .reveal{ opacity:1; transform:none; }
-  html{ scroll-behavior:auto; }
-}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<title>Grand SLAM by ParsaBiotech | Toric lens axis alignment on your slit lamp</title>
+<meta name="description" content="Grand SLAM by ParsaBiotech clips onto a standard slit lamp and reads the beam angle from 0 to 180 degrees, built to help surgeons place toric lenses within the 2 to 3 degree window. Investigational prototype.">
+<link rel="icon" href="images/mark.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/archivo-wdth-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css">
+<script type="module" src="js/main.js"></script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
-<!-- Ambient drifting light layers -->
-<div class="ambient" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
-
-<!-- ============================================================
-     NAV
-     ============================================================ -->
-<nav class="nav" id="nav">
+<header class="nav" id="nav">
   <div class="nav-inner">
-    <a href="#top" class="wordmark"><span class="dot"></span>ParsaBiotech</a>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span></button>
-    <div class="nav-links" id="navLinks">
-      <a href="#problem">The Problem</a>
-      <a href="#how">How It Works</a>
-      <a href="#different">Why It's Different</a>
-      <a href="#technology">Technology</a>
-      <a href="#contact">Contact</a>
-      <a href="#contact" class="btn btn-primary">Get in Touch</a>
-    </div>
-  </div>
-</nav>
-
-<!-- ============================================================
-     HERO
-     ============================================================ -->
-<header class="hero" id="top">
-  <div class="wrap">
-    <span class="hero-eyebrow">Slit Lamp Angular Measurement</span>
-    <h1>Grand <span class="lit">SLAM</span></h1>
-    <p class="hero-value">Surgical-grade axis alignment on the slit lamp you already own.</p>
-    <p class="hero-sub">Continuous beam measurement from 0 to 180 degrees, live on the device and in the companion app.</p>
-    <div class="hero-cta">
-      <a href="#how" class="btn btn-primary">See How It Works</a>
-      <a href="#contact" class="btn btn-ghost">Get in Touch</a>
-    </div>
-
-    <!-- The instrument: SVG protractor with animated beam. Ticks are generated by JS. -->
-    <div class="instrument">
-      <svg viewBox="0 0 800 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Animated slit lamp beam sweeping from 0 to 180 degrees">
-        <defs>
-          <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#22D3EE"/>
-            <stop offset=".55" stop-color="#3B82F6"/>
-            <stop offset="1" stop-color="#7C6BF6"/>
-          </linearGradient>
-          <filter id="beamGlow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="6" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <radialGradient id="hubGrad">
-            <stop offset="0" stop-color="#FFFFFF"/>
-            <stop offset="1" stop-color="#DDE6F2"/>
-          </radialGradient>
-        </defs>
-
-        <!-- swept wedge (path updated by JS) -->
-        <path id="wedge" fill="url(#beamGrad)" opacity="0.07"></path>
-
-        <!-- protractor arc -->
-        <path d="M 60 420 A 340 340 0 0 1 740 420" fill="none" stroke="#DCE4F0" stroke-width="2"/>
-        <!-- tick marks + labels injected here by JS -->
-        <g id="ticks"></g>
-
-        <!-- the beam -->
-        <g id="beam" filter="url(#beamGlow)">
-          <line x1="400" y1="420" x2="716" y2="420" stroke="url(#beamGrad)" stroke-width="5" stroke-linecap="round"/>
-          <circle cx="716" cy="420" r="8" fill="#7C6BF6" opacity=".9"/>
-        </g>
-
-        <!-- pivot hub -->
-        <circle cx="400" cy="420" r="17" fill="url(#hubGrad)" stroke="#C9D6E8" stroke-width="1.5"/>
-        <circle cx="400" cy="420" r="5" fill="#3B82F6"/>
-      </svg>
-      <div class="readout">
-        <div class="value"><span id="angleValue">0</span>&deg;</div>
-        <div class="label">Live beam angle</div>
-      </div>
-    </div>
+    <a href="#top" class="brand" aria-label="ParsaBiotech, back to top">
+      <img src="images/parsabiotech-lockup.png" alt="ParsaBiotech" width="1474" height="560">
+    </a>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">
+      <span class="nav-toggle-label">Menu</span>
+      <svg class="nav-toggle-icon" viewBox="0 0 20 20" aria-hidden="true"><line x1="3" y1="7" x2="17" y2="7"/><line x1="3" y1="13" x2="17" y2="13"/></svg>
+    </button>
+    <nav class="nav-links" id="navLinks" aria-label="Sections">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#compare">Compare</a>
+      <a href="#evidence">Evidence</a>
+    </nav>
+    <a href="#contact" class="btn btn-ink btn-sm">Book a demo</a>
   </div>
 </header>
 
-<!-- ============================================================
-     THE PROBLEM
-     ============================================================ -->
-<section class="problem" id="problem">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">The Problem</span>
-      <h2 class="section-title">One degree matters.</h2>
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="wrap hero-inner">
+    <h1 id="hero-title" class="hero-name">Grand SLAM</h1>
+    <p class="hero-expansion">Slit Lamp Angular Measurement</p>
+    <p class="hero-value">Built to help surgeons place toric lenses within 2–3° of the target axis, using the slit lamp the clinic already owns.</p>
+    <div class="hero-actions" id="heroActions">
+      <a href="#contact" class="btn btn-ink">Book a demo</a>
+      <a href="#how" class="link-arrow">How it works</a>
     </div>
-    <div class="problem-grid">
-      <div class="problem-copy reveal d1">
-        <p>Nearly <strong>half of cataract patients</strong> also have astigmatism. Correcting it takes a toric lens placed within <strong>2 to 3 degrees</strong> of a precise target axis.</p>
-        <p>Most surgeons still mark the eye by hand with ink. The rest buy dedicated digital alignment systems that most clinics cannot justify.</p>
 
-        <!-- animated degradation bar -->
-        <div class="decay">
-          <div class="decay-title">Correction lost by misalignment</div>
-          <div class="decay-track"><div class="decay-fill" id="decayFill"></div></div>
-          <div class="decay-scale"><span>0&deg;</span><span>10&deg;</span><span>20&deg;</span><span>30&deg;</span></div>
-          <p class="decay-note">3.3% of the correction is lost per degree. <b>At 30 degrees, the lens does nothing.</b></p>
-        </div>
-      </div>
+    <figure class="axis" aria-labelledby="axis-caption">
+      <svg class="axis-svg" viewBox="-220 -220 440 440" role="img" aria-label="Diagram: the eye drawn as a circle, with the lens axis as a bar that settles inside a narrow window 3 degrees either side of an 87 degree target.">
+        <line class="axis-ref" x1="-210" y1="0" x2="210" y2="0"/>
+        <circle class="axis-eye" r="150"/>
+        <path class="axis-window" d="M 22.37 -212.83 A 214 214 0 0 0 0.00 -214.00 L 0.00 -153.00 A 153 153 0 0 1 15.99 -152.16 Z"/><path class="axis-window" d="M -22.37 212.83 A 214 214 0 0 0 -0.00 214.00 L -0.00 153.00 A 153 153 0 0 1 -15.99 152.16 Z"/><line class="axis-target" x1="15.99" y1="-152.16" x2="23.41" y2="-222.77"/><line class="axis-target" x1="0.00" y1="-153.00" x2="0.00" y2="-224.00"/><line class="axis-target" x1="-15.99" y1="152.16" x2="-23.41" y2="222.77"/><line class="axis-target" x1="-0.00" y1="153.00" x2="-0.00" y2="224.00"/>
+        <g id="axisBar" transform="rotate(-86.6)">
+          <rect class="axis-bar" x="-205" y="-3" width="410" height="6" rx="3"/>
+        </g>
+        <circle class="axis-pupil" r="44"/>
+      </svg>
+      <figcaption id="axis-caption" class="axis-caption">
+        <span class="axis-readout"><span id="axisValue">86.6°</span> axis</span>
+        <span class="axis-status-wrap"><span class="axis-key" aria-hidden="true"></span><span class="axis-status" id="axisStatus">Within the target range</span></span>
+        <span class="axis-note">Simulated demonstration</span>
+      </figcaption>
+    </figure>
+  </div>
+  <p class="hero-stage">Investigational prototype · Patent pending · Not yet cleared by Health Canada or the FDA</p>
+</section>
 
-      <div class="stat-cards reveal d2">
-        <div class="stat-card">
-          <div class="num"><span class="count" data-count="3.3" data-decimals="1"></span>%</div>
-          <div class="desc">Correction lost with every single degree of misalignment</div>
-        </div>
-        <div class="stat-card">
-          <div class="num"><span class="count" data-count="5"></span>&deg;</div>
-          <div class="desc">Average alignment error with manual ink marking</div>
-        </div>
-        <div class="stat-card">
-          <div class="num">$<span class="count" data-count="300"></span>K</div>
-          <div class="desc">Digital alignment systems run $75,000 to $300,000</div>
-        </div>
-        <div class="stat-card">
-          <div class="num"><span class="count" data-count="30"></span>&deg;</div>
-          <div class="desc">The point at which a toric lens loses all effect</div>
-        </div>
+<!-- ============ PROBLEM ============ -->
+<section class="section" id="problem" aria-labelledby="problem-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="problem-title">One degree matters.</h2>
+      <div class="section-lede">
+        <p>Cataract surgery is the most common operation in the world. Nearly half of cataract patients also have astigmatism, and correcting both takes a toric lens placed within 2 to 3 degrees of a precise axis of the eye.</p>
+        <p>Most surgeons still mark the eye by hand with ink. The rest buy dedicated digital alignment systems, at $75,000 to $300,000, that most clinics cannot justify.</p>
       </div>
+    </div>
+
+    <figure class="deg" aria-labelledby="deg-title">
+      <figcaption id="deg-title" class="deg-title">The further the lens is turned off target, the less it works.</figcaption>
+      <p class="sr-only">On a scale from 0 to 30 degrees off axis: the target range is within 2 to 3 degrees, which is where Grand SLAM aims; manual ink marking adds 3 to 5 degrees of error as the ink spreads, losing about 9 to 15 percent of the correction; at 30 degrees off the lens delivers no benefit at all.</p>
+      <div class="deg-scale" id="degScale" aria-hidden="true">
+        <div class="deg-above">
+          <span class="deg-lead lead-zero"></span>
+          <div class="mk mk-zero" style="--deg:30deg"><svg class="lens" viewBox="-32 -32 64 64" aria-hidden="true"><circle r="26"/><line class="lens-tgt" x1="0" y1="-31" x2="0" y2="31"/><line class="lens-bar" x1="0" y1="-31" x2="0" y2="31" transform="rotate(30)"/><circle class="lens-pupil" r="7"/></svg><span>No effect</span></div>
+          <div class="mk mk-ink" style="--deg:5deg"><svg class="lens" viewBox="-32 -32 64 64" aria-hidden="true"><circle r="26"/><line class="lens-tgt" x1="0" y1="-31" x2="0" y2="31"/><line class="lens-bar" x1="0" y1="-31" x2="0" y2="31" transform="rotate(5)"/><circle class="lens-pupil" r="7"/></svg><span>Manual ink marking: additional 3–5° off</span></div>
+        </div>
+        <div class="deg-ruler">
+          <svg class="deg-svg" viewBox="0 0 1000 40" preserveAspectRatio="none">
+            <rect class="deg-window" x="0" y="0" width="100" height="10"/>
+            <rect class="deg-inkband" x="100" y="0" width="66.67" height="10"/>
+            <line class="deg-base" x1="0" y1="10" x2="1000" y2="10"/>
+            <line class="t-mid" x1="0.00" y1="10" x2="0.00" y2="32"/><line class="t-minor" x1="33.33" y1="10" x2="33.33" y2="21"/><line class="t-minor" x1="66.67" y1="10" x2="66.67" y2="21"/><line class="t-minor" x1="100.00" y1="10" x2="100.00" y2="21"/><line class="t-minor" x1="133.33" y1="10" x2="133.33" y2="21"/><line class="t-mid" x1="166.67" y1="10" x2="166.67" y2="32"/><line class="t-minor" x1="200.00" y1="10" x2="200.00" y2="21"/><line class="t-minor" x1="233.33" y1="10" x2="233.33" y2="21"/><line class="t-minor" x1="266.67" y1="10" x2="266.67" y2="21"/><line class="t-minor" x1="300.00" y1="10" x2="300.00" y2="21"/><line class="t-mid" x1="333.33" y1="10" x2="333.33" y2="32"/><line class="t-minor" x1="366.67" y1="10" x2="366.67" y2="21"/><line class="t-minor" x1="400.00" y1="10" x2="400.00" y2="21"/><line class="t-minor" x1="433.33" y1="10" x2="433.33" y2="21"/><line class="t-minor" x1="466.67" y1="10" x2="466.67" y2="21"/><line class="t-mid" x1="500.00" y1="10" x2="500.00" y2="32"/><line class="t-minor" x1="533.33" y1="10" x2="533.33" y2="21"/><line class="t-minor" x1="566.67" y1="10" x2="566.67" y2="21"/><line class="t-minor" x1="600.00" y1="10" x2="600.00" y2="21"/><line class="t-minor" x1="633.33" y1="10" x2="633.33" y2="21"/><line class="t-mid" x1="666.67" y1="10" x2="666.67" y2="32"/><line class="t-minor" x1="700.00" y1="10" x2="700.00" y2="21"/><line class="t-minor" x1="733.33" y1="10" x2="733.33" y2="21"/><line class="t-minor" x1="766.67" y1="10" x2="766.67" y2="21"/><line class="t-minor" x1="800.00" y1="10" x2="800.00" y2="21"/><line class="t-mid" x1="833.33" y1="10" x2="833.33" y2="32"/><line class="t-minor" x1="866.67" y1="10" x2="866.67" y2="21"/><line class="t-minor" x1="900.00" y1="10" x2="900.00" y2="21"/><line class="t-minor" x1="933.33" y1="10" x2="933.33" y2="21"/><line class="t-minor" x1="966.67" y1="10" x2="966.67" y2="21"/><line class="t-mid" x1="1000.00" y1="10" x2="1000.00" y2="32"/>
+          </svg>
+          <span class="deg-end"></span>
+          <span class="deg-lead lead-window"></span>
+          <div class="deg-labels"><span style="left:0.000%">0°</span><span style="left:16.667%">5°</span><span style="left:33.333%">10°</span><span style="left:50.000%">15°</span><span style="left:66.667%">20°</span><span style="left:83.333%">25°</span><span style="left:100.000%">30°</span></div>
+        </div>
+        <div class="mk mk-window" style="--deg:0deg"><svg class="lens" viewBox="-32 -32 64 64" aria-hidden="true"><circle r="26"/><line class="lens-tgt" x1="0" y1="-31" x2="0" y2="31"/><line class="lens-bar" x1="0" y1="-31" x2="0" y2="31" transform="rotate(0)"/><circle class="lens-pupil" r="7"/></svg><span>Within target range</span></div>
+      </div>
+    </figure>
+
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section section-alt" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="how-title">Clip on. Zero. Measure. Guide.</h2>
+      <p class="section-lede">Grand SLAM turns the slit lamp every ophthalmologist already owns into a precision alignment instrument.</p>
+    </div>
+
+    <ol class="steps">
+      <li><span class="step-n">01</span><h3>Clip on</h3><p>Clips onto the light hood of any standard slit lamp in seconds. No modification, no dedicated hardware.</p></li>
+      <li><span class="step-n">02</span><h3>Zero</h3><p>Set your reference axis with a single calibration. The device holds it.</p></li>
+      <li><span class="step-n">03</span><h3>Measure</h3><p>A built-in motion sensor reads the hood’s rotation, and so the beam’s angle, to a fraction of a degree.</p></li>
+      <li><span class="step-n">04</span><h3>Guide</h3><p>The phone app shows the live angle and alerts the surgeon the instant it hits the target.</p></li>
+    </ol>
+
+    <div class="spec">
+      <h3 class="spec-title">Built like an instrument.</h3>
+      <p class="spec-lede">A compact sensor unit reads the slit beam's angular position continuously and streams it to the companion mobile app.</p>
+      <dl class="spec-sheet">
+        <div><dt>Measurement</dt><dd>Patent-pending built-in motion sensor on the light hood, reading the beam angle continuously from 0 to 180 degrees, to a fraction of a degree.</dd></div>
+        <div><dt>Readout</dt><dd>Phone app with the live angle and an instant alert when the target is reached.</dd></div>
+        <div><dt>Records</dt><dd>After surgery, finds where the lens landed and calculates any correction needed.</dd></div>
+        <div><dt>Fit</dt><dd>Universal fit for standard slit lamps. Nothing else to buy.</dd></div>
+      </dl>
     </div>
   </div>
 </section>
 
-<!-- ============================================================
-     HOW IT WORKS
-     ============================================================ -->
-<section id="how">
+<!-- ============ COMPARE ============ -->
+<section class="section" id="compare" aria-labelledby="compare-title">
   <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">How It Works</span>
-      <h2 class="section-title">Clip on. Zero. Measure.</h2>
-      <p class="section-lede">Grand SLAM turns the microscope every ophthalmologist already owns into a precision alignment instrument.</p>
+    <div class="section-head">
+      <h2 id="compare-title">Precision without the capital cost.</h2>
+      <p class="section-lede">Three ways to find the axis today. Only one uses the equipment already in your clinic.</p>
     </div>
-    <div class="steps">
-      <div class="step reveal d1">
-        <span class="k">01</span>
-        <div class="icon">
-          <!-- clip icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="url(#beamGrad)" stroke-width="1.8" stroke-linecap="round"><path d="M8 12V7a4 4 0 0 1 8 0v9a2.5 2.5 0 0 1-5 0V8"/></svg>
-        </div>
-        <h3>Clip on</h3>
-        <p>Mounts to any standard slit lamp in seconds. No modification, no dedicated hardware.</p>
+
+    <table class="compare">
+      <caption class="sr-only">Comparison of manual ink marking, Grand SLAM, and dedicated digital systems</caption>
+      <thead>
+        <tr>
+          <td></td>
+          <th scope="col">Manual ink marking</th>
+          <th scope="col" class="is-us">Grand SLAM</th>
+          <th scope="col">Digital systems</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Alignment</th>
+          <td data-label="Manual ink marking">The surgeon judges the angle by hand; ink spread adds 3–5° of error.</td>
+          <td data-label="Grand SLAM" class="is-us">Designed for the 2–3° window, with a continuous sensor reading.</td>
+          <td data-label="Digital systems">Accurate, but adds an extra imaging step before every surgery.</td>
+        </tr>
+        <tr>
+          <th scope="row">Equipment cost</th>
+          <td data-label="Manual ink marking">Minimal.</td>
+          <td data-label="Grand SLAM" class="is-us">An affordable clip-on device plus a low annual software license.</td>
+          <td data-label="Digital systems">$75,000 to $300,000 in dedicated capital hardware.</td>
+        </tr>
+        <tr>
+          <th scope="row">Repeatability</th>
+          <td data-label="Manual ink marking">Freehand.</td>
+          <td data-label="Grand SLAM" class="is-us">Continuous, from a single calibration.</td>
+          <td data-label="Digital systems">Continuous.</td>
+        </tr>
+        <tr>
+          <th scope="row">Who can use it</th>
+          <td data-label="Manual ink marking">Any clinic. Still the most common method worldwide.</td>
+          <td data-label="Grand SLAM" class="is-us">Any clinic with a standard slit lamp.</td>
+          <td data-label="Digital systems">Out of reach for most clinics.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ EVIDENCE ============ -->
+<section class="section section-alt" id="evidence" aria-labelledby="evidence-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="evidence-title">Where Grand SLAM stands.</h2>
+      <p class="section-lede">A working prototype, protected and backed, with the stage stated plainly.</p>
+    </div>
+
+    <div class="ledger">
+      <dl class="ledger-col">
+        <div><dt>2 U.S. patent applications</dt><dd>Two active filings. Patent pending.</dd></div>
+        <div><dt>uOttawa Startup Garage</dt><dd>Backed by the University of Ottawa's startup accelerator.</dd></div>
+        <div><dt>Invented and clinically tested</dt><dd>By a practicing ophthalmologist. Grand SLAM has moved beyond concept and into clinical use.</dd></div>
+        <div><dt>5 patients measured</dt><dd>With the prototype, with promising results.</dd></div>
+        <div><dt>9 units produced</dt><dd>Used in pre-commercialisation, with positive surgeon feedback.</dd></div>
+        <div><dt>Business model</dt><dd>Device sales through distributors plus an annual software license: a simple accessory costing a fraction of a $75,000–$300,000 digital system.</dd></div>
+        <div><dt>Regulatory stage</dt><dd>Investigational. ParsaBiotech is incorporated in Canada and rebuilding Grand SLAM for clinical validation and a Health Canada and FDA 510(k) submission. Not yet cleared.</dd></div>
+      </dl>
+      <dl class="ledger-col ledger-market">
+        <div><dt>~200,000</dt><dd>ophthalmologists worldwide.</dd></div>
+        <div><dt>19,000</dt><dd>ophthalmologists in the U.S.</dd></div>
+        <div><dt>~1.7M</dt><dd>toric IOL procedures projected by 2026.</dd></div>
+      </dl>
+    </div>
+    <!-- Founders section: add real names and roles here when available. -->
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="wrap contact-grid">
+    <div class="contact-main">
+      <h2 id="contact-title">See the beam for yourself.</h2>
+      <p class="contact-lede">Clinic owners, surgeons, investors, and partners: get in touch and we will arrange a live demonstration.</p>
+      <div class="contact-actions">
+        <a class="btn btn-white" href="mailto:parsabarazandeh@parsabiotech.com?subject=Grand%20SLAM%20demo%20request">Book a demo</a>
+        <a class="contact-email" href="mailto:parsabarazandeh@parsabiotech.com">parsabarazandeh@parsabiotech.com</a>
+        <button type="button" class="btn-copy" id="copyEmail" data-email="parsabarazandeh@parsabiotech.com">Copy email</button>
+        <span class="sr-only" id="copyStatus" role="status" aria-live="polite"></span>
       </div>
-      <div class="step reveal d2">
-        <span class="k">02</span>
-        <div class="icon">
-          <!-- target icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="url(#beamGrad)" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="0.8" fill="#3B82F6"/></svg>
-        </div>
-        <h3>Zero</h3>
-        <p>Set your reference axis with a single calibration. The device holds it.</p>
-      </div>
-      <div class="step reveal d3">
-        <span class="k">03</span>
-        <div class="icon">
-          <!-- angle icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="url(#beamGrad)" stroke-width="1.8" stroke-linecap="round"><path d="M4 19h16"/><path d="M4 19L18 6"/><path d="M9.5 19a6 6 0 0 0-1.6-4.1"/></svg>
-        </div>
-        <h3>Measure</h3>
-        <p>Reads the beam angle continuously across the full 0 to 180 degree range.</p>
-      </div>
-      <div class="step reveal d4">
-        <span class="k">04</span>
-        <div class="icon">
-          <!-- phone icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="url(#beamGrad)" stroke-width="1.8" stroke-linecap="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 17.5h2"/></svg>
-        </div>
-        <h3>Guide</h3>
-        <p>Live readout in the companion app for real-time monitoring and post-op analysis.</p>
-      </div>
+    </div>
+    <div class="contact-promise">
+      <h3>When you reach out</h3>
+      <ol>
+        <li><b>Try the prototype.</b> See and handle Grand SLAM on a slit lamp in a live demonstration.</li>
+        <li><b>Follow development.</b> Get updates as Grand SLAM moves through testing toward clearance.</li>
+      </ol>
     </div>
   </div>
 </section>
 
-<!-- ============================================================
-     WHY IT'S DIFFERENT
-     ============================================================ -->
-<section class="compare" id="different">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Why It's Different</span>
-      <h2 class="section-title">Precision without the price tag.</h2>
-    </div>
-    <div class="compare-grid">
+</main>
 
-      <!-- Ink marking -->
-      <div class="compare-card reveal d1">
-        <div class="compare-tag">The old way</div>
-        <h3>Ink marking</h3>
-        <div class="metric">
-          <div class="m-label"><span>Alignment error</span><span>~5&deg; avg</span></div>
-          <div class="m-track"><div class="m-fill bad" data-w="85"></div></div>
-        </div>
-        <div class="metric">
-          <div class="m-label"><span>Equipment cost</span><span>Minimal</span></div>
-          <div class="m-track"><div class="m-fill mid" data-w="6"></div></div>
-        </div>
-        <div class="metric">
-          <div class="m-label"><span>Repeatability</span><span>Freehand</span></div>
-          <div class="m-track"><div class="m-fill mid" data-w="25"></div></div>
-        </div>
-        <p class="compare-foot">Marks smudge, spread, and drift. Error alone can consume the entire tolerance window.</p>
-      </div>
-
-      <!-- Grand SLAM -->
-      <div class="compare-card hero-card reveal d2">
-        <div class="compare-tag">Grand SLAM</div>
-        <h3>Sensor-guided alignment</h3>
-        <div class="metric">
-          <div class="m-label"><span>Alignment precision</span><span>Surgical-grade</span></div>
-          <div class="m-track"><div class="m-fill good" data-w="97"></div></div>
-        </div>
-        <div class="metric">
-          <div class="m-label"><span>Equipment cost</span><span>A fraction</span></div>
-          <div class="m-track"><div class="m-fill good" data-w="10"></div></div>
-        </div>
-        <div class="metric">
-          <div class="m-label"><span>Repeatability</span><span>Continuous</span></div>
-          <div class="m-track"><div class="m-fill good" data-w="97"></div></div>
-        </div>
-        <p class="compare-foot">Digital precision on the slit lamp already in your clinic, plus a low annual software license.</p>
-      </div>
-
-      <!-- Digital systems -->
-      <div class="compare-card reveal d3">
-        <div class="compare-tag">The expensive way</div>
-        <h3>Digital systems</h3>
-        <div class="metric">
-          <div class="m-label"><span>Alignment error</span><span>Low</span></div>
-          <div class="m-track"><div class="m-fill mid" data-w="12"></div></div>
-        </div>
-        <div class="metric">
-          <div class="m-label"><span>Equipment cost</span><span>$75K to $300K</span></div>
-          <div class="m-track"><div class="m-fill bad" data-w="100"></div></div>
-        </div>
-        <div class="metric">
-          <div class="m-label"><span>Accessibility</span><span>Few clinics</span></div>
-          <div class="m-track"><div class="m-fill mid" data-w="18"></div></div>
-        </div>
-        <p class="compare-foot">Dedicated capital hardware, out of reach for most practices worldwide.</p>
-      </div>
-    </div>
-
-    <p class="compare-land reveal">Same precision. <span class="lit">Tiny cost.</span> Equipment you already own.</p>
-  </div>
-</section>
-
-<!-- ============================================================
-     TECHNOLOGY
-     ============================================================ -->
-<section id="technology">
-  <div class="wrap">
-    <div class="tech-grid">
-      <div class="tech-copy reveal">
-        <span class="eyebrow">The Technology</span>
-        <h2 class="section-title">Built like an instrument.</h2>
-        <p>A compact sensor unit reads the slit beam's angular position continuously and streams it to the companion mobile app.</p>
-        <ul class="tech-list">
-          <li>
-            <span class="tick"><svg viewBox="0 0 12 12" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M2 6.5L4.8 9.2 10 3.5"/></svg></span>
-            <span><b>Sensor-based angular measurement,</b> continuous from 0 to 180 degrees.</span>
-          </li>
-          <li>
-            <span class="tick"><svg viewBox="0 0 12 12" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M2 6.5L4.8 9.2 10 3.5"/></svg></span>
-            <span><b>Companion mobile app</b> for real-time monitoring during alignment.</span>
-          </li>
-          <li>
-            <span class="tick"><svg viewBox="0 0 12 12" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M2 6.5L4.8 9.2 10 3.5"/></svg></span>
-            <span><b>Post-operative analysis</b> to verify and document every case.</span>
-          </li>
-          <li>
-            <span class="tick"><svg viewBox="0 0 12 12" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M2 6.5L4.8 9.2 10 3.5"/></svg></span>
-            <span><b>Universal fit</b> for standard slit lamps. Nothing else to buy.</span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- CSS 3D rotating device -->
-      <div class="device-stage reveal d1" aria-hidden="true">
-        <div class="device-tilt">
-          <div class="device">
-            <div class="face front">
-              <div class="device-screen">
-                <div class="slit"></div>
-                <div class="deg">SLIT · LIVE</div>
-              </div>
-              <div class="device-led"></div>
-              <div class="device-clip"></div>
-            </div>
-            <div class="face back"></div>
-            <div class="face left"></div>
-            <div class="face right"></div>
-            <div class="face top"></div>
-            <div class="face bottom"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Real prototype photo on a glowing pedestal -->
-    <div class="proto reveal">
-      <span class="eyebrow" style="justify-content:center">The Prototype</span>
-      <h2 class="section-title" style="font-size:clamp(24px,3.2vw,34px)">Real. Working. Clinically tested.</h2>
-      <div class="proto-pedestal">
-        <!-- ============ PLACEHOLDER: PROTOTYPE PHOTO ============
-             Replace this .proto-slot <div> with your image:
-             <img src="prototype.jpg" alt="Grand SLAM prototype" style="border-radius:16px">
-             ====================================================== -->
-        <div class="proto-slot">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 15l-4.5-4.5L9 18"/></svg>
-          <span>Prototype photo goes here</span>
-        </div>
-        <p class="proto-caption">Grand SLAM prototype, mounted on a standard slit lamp</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     CREDIBILITY
-     ============================================================ -->
-<section class="cred" id="credibility">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="eyebrow">Credibility</span>
-      <h2 class="section-title">Grounded in evidence.</h2>
-    </div>
-    <div class="cred-grid">
-      <div class="cred-card reveal d1">
-        <div class="big"><span class="count" data-count="2"></span></div>
-        <div class="t">U.S. patent applications</div>
-        <p>Two active filings. Patent pending.</p>
-      </div>
-      <div class="cred-card reveal d2">
-        <div class="big">uOttawa</div>
-        <div class="t">Startup Garage</div>
-        <p>Backed by the University of Ottawa's startup accelerator.</p>
-      </div>
-      <div class="cred-card reveal d3">
-        <div class="big">Clinical</div>
-        <div class="t">Tested in practice</div>
-        <p>Working prototype evaluated in a clinical setting by a practicing ophthalmologist.</p>
-      </div>
-      <div class="cred-card reveal d1">
-        <div class="big"><span class="count" data-count="200" data-comma="1"></span>K</div>
-        <div class="t">Ophthalmologists worldwide</div>
-        <p>A global market of roughly 200,000 specialists.</p>
-      </div>
-      <div class="cred-card reveal d2">
-        <div class="big"><span class="count" data-count="1.7" data-decimals="1"></span>M</div>
-        <div class="t">Toric IOL procedures</div>
-        <p>Projected annually by 2026, and growing.</p>
-      </div>
-      <div class="cred-card reveal d3">
-        <div class="big">Device + SaaS</div>
-        <div class="t">Accessible by design</div>
-        <p>An affordable device with a low annual software license. A fraction of competitors' cost.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     CONTACT
-     ============================================================ -->
-<section class="contact" id="contact">
-  <div class="wrap">
-    <div class="contact-card reveal">
-      <span class="eyebrow" style="justify-content:center">Contact</span>
-      <h2>See the beam for yourself.</h2>
-      <p>Surgeons, investors, and partners. We would be glad to show you a live demonstration.</p>
-      <!-- ===== PLACEHOLDER: replace with your real email ===== -->
-      <a href="mailto:hello@parsabiotech.com" class="btn btn-primary">Get in Touch</a>
-      <p style="margin-top:22px"><span class="email">hello@parsabiotech.com</span></p>
-      <div class="loc">ParsaBiotech Inc. · Ottawa, Canada</div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
-<footer>
-  <div class="foot-inner">
-    <span>&copy; 2026 ParsaBiotech Inc. All rights reserved.</span>
-    <span>Grand SLAM · Patent pending</span>
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span>&copy; 2026 ParsaBiotech Inc. · Ottawa, Canada</span>
+    <span>Grand SLAM · Patent pending · Investigational device, not yet cleared by Health Canada or the FDA</span>
   </div>
 </footer>
 
-<script>
-/* ============================================================
-   SCRIPTS
-   1. Beam instrument animation
-   2. Count-up statistics
-   3. Scroll reveals + bar fills
-   4. Mobile nav
-   ============================================================ */
-(function(){
-  "use strict";
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+<a href="#contact" class="dock" id="dock">Book a demo</a>
 
-  /* ---------- 1. HERO INSTRUMENT ---------- */
-  const CX = 400, CY = 420, R = 316, TICK_R = 340;
-  const ticksGroup = document.getElementById("ticks");
-  const beam = document.getElementById("beam");
-  const wedge = document.getElementById("wedge");
-  const angleValue = document.getElementById("angleValue");
-
-  // Build protractor ticks: minor every 5°, major every 15°, labels every 30°
-  (function buildTicks(){
-    const svgNS = "http://www.w3.org/2000/svg";
-    for(let a = 0; a <= 180; a += 5){
-      const rad = a * Math.PI / 180;
-      const major = a % 15 === 0;
-      const inner = TICK_R - (major ? 16 : 9);
-      const x1 = CX + TICK_R * Math.cos(rad), y1 = CY - TICK_R * Math.sin(rad);
-      const x2 = CX + inner  * Math.cos(rad), y2 = CY - inner  * Math.sin(rad);
-      const line = document.createElementNS(svgNS, "line");
-      line.setAttribute("x1", x1); line.setAttribute("y1", y1);
-      line.setAttribute("x2", x2); line.setAttribute("y2", y2);
-      line.setAttribute("stroke", major ? "#AFC0D8" : "#D5DFEC");
-      line.setAttribute("stroke-width", major ? 2 : 1.2);
-      line.setAttribute("stroke-linecap", "round");
-      ticksGroup.appendChild(line);
-
-      if(a % 30 === 0){
-        const lr = TICK_R + 22;
-        const tx = CX + lr * Math.cos(rad), ty = CY - lr * Math.sin(rad);
-        const t = document.createElementNS(svgNS, "text");
-        t.setAttribute("x", tx); t.setAttribute("y", ty);
-        t.setAttribute("text-anchor", "middle");
-        t.setAttribute("dominant-baseline", "middle");
-        t.setAttribute("font-family", "Space Grotesk, sans-serif");
-        t.setAttribute("font-size", "13");
-        t.setAttribute("font-weight", "600");
-        t.setAttribute("fill", "#8A96AB");
-        t.textContent = a + "\u00B0";
-        ticksGroup.appendChild(t);
-      }
-    }
-  })();
-
-  function setBeam(angle){
-    beam.setAttribute("transform", "rotate(" + (-angle) + " " + CX + " " + CY + ")");
-    // swept wedge from 0° to current angle
-    const rad = angle * Math.PI / 180;
-    const ex = CX + R * Math.cos(rad), ey = CY - R * Math.sin(rad);
-    wedge.setAttribute("d",
-      "M " + CX + " " + CY + " L " + (CX + R) + " " + CY +
-      " A " + R + " " + R + " 0 0 0 " + ex + " " + ey + " Z");
-    angleValue.textContent = Math.round(angle);
-  }
-
-  if(reduceMotion){
-    setBeam(47); // static, meaningful pose
-  } else {
-    // Sweep through instrument-like waypoints with easing and brief holds
-    const waypoints = [0, 47, 118, 180, 90, 12, 152, 68];
-    let wi = 0, from = 0, to = waypoints[1], t0 = null;
-    const MOVE = 2600, HOLD = 900;
-    const ease = x => x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
-
-    function frame(ts){
-      if(t0 === null) t0 = ts;
-      const el = ts - t0;
-      if(el <= MOVE){
-        setBeam(from + (to - from) * ease(el / MOVE));
-      } else if(el <= MOVE + HOLD){
-        setBeam(to);
-      } else {
-        t0 = ts; from = to;
-        wi = (wi + 1) % waypoints.length;
-        to = waypoints[(wi + 1) % waypoints.length];
-      }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  }
-
-  /* ---------- 2. COUNT-UP STATISTICS ---------- */
-  function animateCount(el){
-    const target = parseFloat(el.dataset.count);
-    const decimals = parseInt(el.dataset.decimals || "0", 10);
-    const comma = el.dataset.comma === "1";
-    const dur = 1800;
-    const fmt = v => {
-      let s = v.toFixed(decimals);
-      if(comma) s = Number(s).toLocaleString("en-US");
-      return s;
-    };
-    if(reduceMotion){ el.textContent = fmt(target); return; }
-    let start = null;
-    function step(ts){
-      if(start === null) start = ts;
-      const p = Math.min((ts - start) / dur, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = fmt(target * eased);
-      if(p < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  /* ---------- 3. SCROLL REVEALS + BARS ---------- */
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if(!entry.isIntersecting) return;
-      const el = entry.target;
-      el.classList.add("in");
-      // trigger any counters inside
-      el.querySelectorAll(".count").forEach(c => {
-        if(!c.dataset.done){ c.dataset.done = "1"; animateCount(c); }
-      });
-      // trigger comparison bar fills
-      el.querySelectorAll(".m-fill").forEach(f => { f.style.width = f.dataset.w + "%"; });
-      // trigger the degradation bar
-      const decay = el.querySelector("#decayFill") || (el.id === "decayFill" ? el : null);
-      if(decay) decay.style.width = "100%";
-      io.unobserve(el);
-    });
-  }, { threshold: 0.18 });
-
-  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
-
-  // counters that are not inside a .reveal (safety net)
-  const io2 = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if(e.isIntersecting && !e.target.dataset.done){
-        e.target.dataset.done = "1"; animateCount(e.target); io2.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.4 });
-  document.querySelectorAll(".count").forEach(c => io2.observe(c));
-
-  /* ---------- 4. MOBILE NAV ---------- */
-  const nav = document.getElementById("nav");
-  document.getElementById("navToggle").addEventListener("click", () => nav.classList.toggle("open"));
-  document.querySelectorAll("#navLinks a").forEach(a =>
-    a.addEventListener("click", () => nav.classList.remove("open")));
-})();
-</script>
 </body>
 </html>
