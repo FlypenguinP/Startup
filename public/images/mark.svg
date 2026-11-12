@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="480" viewBox="20 2 76 96">
+  <title>ParsaBiotech</title>
+  <path d="M34 30 C58 30 74 37 82 50 C74 63 58 70 34 70" fill="none" stroke="#0A1B33" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="57" cy="50" r="5.5" fill="none" stroke="#2F6BFF" stroke-width="3.8"/>
+  <line x1="45.87" y1="54.5" x2="68.13" y2="45.5" stroke="#0BA5BE" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="34" y1="8" x2="34" y2="50" stroke="#2F6BFF" stroke-width="6.5" stroke-linecap="round"/>
+  <line x1="34" y1="50" x2="34" y2="92" stroke="#0A1B33" stroke-width="6.5" stroke-linecap="butt"/>
+  <circle cx="34" cy="92" r="3.25" fill="#0A1B33"/>
+</svg>
